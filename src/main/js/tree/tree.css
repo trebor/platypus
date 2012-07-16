@@ -1,0 +1,79 @@
+html
+{
+  width: 100%;
+  height: 99%;
+  margin: 0px;
+  padding: 0px;
+  border: 0px;
+}
+
+body
+{
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  border: 0px;
+}
+
+div
+{
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  border: 0px;
+}
+
+svg
+{
+/*   background: lightgreen; */
+  width: 100%;
+  height: 100%;
+}
+
+.node
+{
+  cursor: pointer;
+  fill: white;
+}
+
+.open.branch
+{
+  fill: grey;
+}
+
+.closed.branch
+{
+  fill: red;
+}
+
+.leaf
+{
+  fill: green;
+}
+
+.node rect 
+{
+  stroke: #888;
+  stroke-width: 1px;
+}
+
+.node circle 
+{
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node text 
+{
+  font: 10px sans-serif;
+}
+
+path.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
