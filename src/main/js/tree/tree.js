@@ -2,8 +2,8 @@ function StuffTree(divId) {
   var context = this;
 
   this.margin = {top: 0, right: 0, bottom: 0, left: 0};
-  this.width = $(divId).width(); 
-  this.height = $(divId).height();
+  this.width = $(divId).width() - 0; 
+  this.height = $(divId).height() - 5;
   this.cx = this.width / 2;
   this.cy = this.height / 2;
   this.i = 0;
@@ -12,7 +12,7 @@ function StuffTree(divId) {
 
   // display constants
 
-  this.box_size = 20;
+  this.box_size = 50;
   this.box_corner = 4;
 
 
@@ -26,17 +26,18 @@ function StuffTree(divId) {
     .append("g")
     .attr("transform", "translate(" + 0 + "," + 50 + ")");
 
-  d3.json("./flare.json", function(json) {
-    context.root = json;
+//  d3.json("./flare.json", function(json) {
+  d3.json("./data.json", function(json) {
+    context.root = new Node(json);
     context.root.x0 = context.width / 2;
     context.root.y0 = 0;
 
     function collapse(d) {
-      context.get_node_children(d).forEach(collapse);
-      context.close_node(d);
+      d.get_children().forEach(collapse);
+      d.close();
     }
 
-    context.root.children.forEach(collapse);
+    context.root.get_children().forEach(collapse);
     context.update(context.root);
   });
 };
@@ -44,46 +45,93 @@ function StuffTree(divId) {
 StuffTree.prototype.update = function(source) {
   var context = this;
 
-  // Compute the new tree layout.
+  // compute the new tree layout
+
   var nodes = this.tree.nodes(this.root).reverse();
 
-    // Normalize for fixed-depth.
+  // normalize for fixed-depth
+
   nodes.forEach(function(d) { d.y = d.depth * 100; });
 
-  // Update the nodes…
+  // select the nodes
+
   var node = this.vis.selectAll("g.node")
     .data(nodes, function(d) { return d.id || (d.id = ++context.i); });
 
-  // Enter any new nodes at the parent's previous position.
-  var nodeEnter = node.enter().append("g")
+  // enter any new nodes at the parent's previous position
+
+  var nodeEnter = node.enter()
+    .append("g")
     .classed("node", true)
-    .attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; })
-    .on("click", function(d) {return context.click(d);});
+    .attr("transform", function(d) { return "translate(" + source.x0 + "," + source.y0 + ")"; });
+//    .on("mouseover", function (d) {return context.zoom_node(d);})
+//    .on("mouseout", function (d) {return context.unzoom_node(d);});
+
+  
+  // add the node box
 
   nodeEnter.append("svg:rect")
     .attr("x", 0)
     .attr("y", 0)
     .attr("width", 0)
-    .attr("height", 0);
+    .attr("height", 0)
+    .on("click", function(d) {return context.click(d);});
 
   nodeEnter.append("text")
-    .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-    .attr("dy", ".35em")
-    .attr("transform", "rotate(90)")
-    .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+    .classed("add_button", true)
+    .attr("dx", ".1em")
+    .attr("dy", "-.1em")
+    .attr("x", this.box_size / 2)
+     .attr("y", this.box_size / 2)
+    .text("+")
+    .on("click", function(d) {context.add_child(d, "new");});
+
+  nodeEnter.append("text")
+    .classed("child_count", true)
+    .attr("dx", "-1em")
+    .attr("dy", "-.5em")
+    .attr("x", this.box_size / 2)
+    .attr("y", this.box_size / 2);
+
+//   nodeEnter
+//     .fiter(function(d) {return d.parent !== undefined;})
+//     .append("text")
+//     .classed("delete_button", true)
+//     .attr("dx", ".2em")
+//     .attr("dy", "-.1em")
+//     .attr("x", -this.box_size / 2)
+//      .attr("y", this.box_size / 2)
+//     .text("-")
+//     .on("click", function(d) {d.remove();});
+
+  nodeEnter.append("text")
+    .classed("title", true)
+    .attr("x", this.box_size / -2)
+    .attr("y", this.box_size / -2)
+    .attr("dy", "1.1em")
+    .attr("dx", "0.5em")
+    .attr("text-anchor", "start")
     .text(function(d) { return d.name; })
     .style("fill-opacity", 1e-6);
 
   // class new nodes
 
   var nodeUpdate = node
-    .classed("branch", function(d) {return !context.is_node_leaf(d);})
-    .classed("leaf", function(d) {return context.is_node_leaf(d);})
-    .classed("closed", function(d) {return !context.is_node_open(d);})
-    .classed("open", function(d) {return context.is_node_open(d);})
+    .classed("branch", function(d) {return !d.is_leaf();})
+    .classed("leaf", function(d) {return d.is_leaf();})
+    .classed("closed", function(d) {return d.is_closed();})
+    .classed("open", function(d) {return d.is_open();})
     .transition()
     .duration(context.duration)
     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+
+  nodeUpdate
+    .select(".child_count")
+    .text(function(d) {
+      var count = d.get_children().length;
+      return count > 0 ? count : "";
+    });
 
   // post transition size
 
@@ -96,7 +144,7 @@ StuffTree.prototype.update = function(source) {
     .attr("width", this.box_size)
     .attr("height", this.box_size);
 
-  nodeUpdate.select("text")
+  nodeUpdate.select(".title")
     .style("fill-opacity", 1);
 
   // transition exiting nodes back into parent
@@ -118,7 +166,7 @@ StuffTree.prototype.update = function(source) {
   
   // fade away node text
 
-  nodeExit.select("text")
+  nodeExit.select(".title")
     .style("fill-opacity", 1e-6);
 
   // Update the links…
@@ -154,41 +202,40 @@ StuffTree.prototype.update = function(source) {
   });
 };
 
-StuffTree.prototype.open_node = function(node) {
-  if (this.is_node_open(node))
-    return;
-  node.children = node._children;
-  node._children = null;
-}
-
-StuffTree.prototype.close_node = function(node) {
-  if (!this.is_node_open(node))
-    return;
-  node._children = node.children;
-  node.children = null;
-}
-
-StuffTree.prototype.is_node_open = function(node) {
-  var c = node.children;
-  return c !== undefined && c != null && c.length > 0;
-}
-
-StuffTree.prototype.get_node_children = function(node) {
-  var children = this.is_node_open(node) ? node.children : node._children;
-  return children === undefined || children == null ? [] : children;
-}
-
-StuffTree.prototype.is_node_leaf = function(node) {
-  return this.get_node_children(node).length == 0;
-}
-
-  // Toggle children on click.
-StuffTree.prototype.click = function(node) {
-  
-  if (this.is_node_open(node))
-    this.close_node(node);
-  else
-    this.open_node(node);
-
+StuffTree.prototype.add_child = function(node, name) {
+  node.open();
+  node.children = node.get_children();
+  node.children.push(new Node({name: name}));
   this.update(node);
+}
+
+// toggle children on click
+
+StuffTree.prototype.click = function(node) {
+
+  if (node.is_open())
+    node.close();
+  else
+    node.open();
+  
+  this.update(node);
+}
+
+// 
+
+StuffTree.prototype.zoom_node = function(node) {
+  d3.selectAll(".node rect")
+    .filter(function(d) {return d == node;})
+    .transition()
+    .attr("width", 200);
+}
+// toggle children on click
+
+StuffTree.prototype.unzoom_node = function(node) {
+  var context = this;
+
+  d3.selectAll(".node rect")
+    .filter(function(d) {return d == node;})
+    .transition()
+    .attr("width", context.box_size);
 }
