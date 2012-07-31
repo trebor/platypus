@@ -17,7 +17,6 @@ Node.prototype.open = function() {
   if (this.is_open() || this.is_leaf())
     return;
 
-  console.log("opening!", this.name);
   this.children = this._children;
   this._children = null;
 }
@@ -25,7 +24,7 @@ Node.prototype.open = function() {
 Node.prototype.close = function() {
   if (this.is_closed() || this.is_leaf())
     return;
-  console.log("closing!", this.name);
+
   this._children = this.children;
   this.children = null;
 }
@@ -43,22 +42,33 @@ Node.prototype.is_leaf = function() {
   return this.get_children().length == 0;
 }
 
+Node.prototype.is_root = function() {
+  return this.parent === undefined;
+}
+
 Node.prototype.get_children = function() {
   var children = this.is_open() ? this.children : this._children;
   return (children === undefined || children == null) ? [] : children;
 }
 
+Node.prototype.add_child = function(data) {
+  this.open();
+  this.children = this.get_children();
+  this.children.push(new Node(data));
+}
+
 Node.prototype.remove = function() {
+  if (this.is_root())
+    return;
+
   var context = this;
   var parent = this.parent;
-  if (parent === undefined)
-    return;
 
   parent.children = parent.get_children().filter(function(d) {
     return d != context;
   });
 
-  this.update(parent);
+  return parent;
 }
 
 

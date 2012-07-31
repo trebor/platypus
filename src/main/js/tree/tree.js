@@ -84,7 +84,7 @@ StuffTree.prototype.update = function(source) {
     .attr("x", this.box_size / 2)
      .attr("y", this.box_size / 2)
     .text("+")
-    .on("click", function(d) {context.add_child(d, "new");});
+    .on("click", function(d) {d.add_child({name: "new"}); context.update(d);});
 
   nodeEnter.append("text")
     .classed("child_count", true)
@@ -93,16 +93,16 @@ StuffTree.prototype.update = function(source) {
     .attr("x", this.box_size / 2)
     .attr("y", this.box_size / 2);
 
-//   nodeEnter
-//     .fiter(function(d) {return d.parent !== undefined;})
-//     .append("text")
-//     .classed("delete_button", true)
-//     .attr("dx", ".2em")
-//     .attr("dy", "-.1em")
-//     .attr("x", -this.box_size / 2)
-//      .attr("y", this.box_size / 2)
-//     .text("-")
-//     .on("click", function(d) {d.remove();});
+  nodeEnter
+    .append("text")
+    .classed("delete_button", true)
+    .attr("dx", ".2em")
+    .attr("dy", "-.1em")
+    .attr("x", -this.box_size / 2)
+    .attr("y", this.box_size / 2)
+    .attr("visibility", function (d) {return d.is_root() ? "hidden" : "visibile";})
+    .text("-")
+    .on("click", function(d) {context.update(d.remove());});
 
   nodeEnter.append("text")
     .classed("title", true)
@@ -201,13 +201,6 @@ StuffTree.prototype.update = function(source) {
     d.y0 = d.y;
   });
 };
-
-StuffTree.prototype.add_child = function(node, name) {
-  node.open();
-  node.children = node.get_children();
-  node.children.push(new Node({name: name}));
-  this.update(node);
-}
 
 // toggle children on click
 

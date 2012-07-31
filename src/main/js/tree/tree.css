@@ -26,13 +26,6 @@ div
   float: left;
 }
 
-#people
-{
-  width: 10%;
-  height: 100%;
-  background: red;
-}
-
 #chart
 {
   width: 90%;
@@ -52,20 +45,14 @@ svg
   fill: #ccc;
 }
 
-.foo
-{
-  stroke: red;
-  stroke-width: 5px;
-}
-
 .open.branch
 {
-  fill: lightgrey;
+  fill: grey;
 }
 
 .closed.branch
 {
-  fill: red;
+  fill: grey;
 }
 
 .leaf
