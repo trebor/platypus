@@ -1,13 +1,14 @@
-function Node(node_data) {
+function Node(parameters) {
   var context = this;
-  $.each(node_data, function(key, element) {
+  $.each(parameters, function(key, element) {
     context[key] = element;
   });
 
   this.children = [];
+  this._children = null;
 
-  if (node_data.children !== undefined) {
-    node_data.children.forEach(function(child) {
+  if (parameters.children !== undefined) {
+    parameters.children.forEach(function(child) {
       context.children.push(new Node(child));
     });
   }
@@ -30,8 +31,7 @@ Node.prototype.close = function() {
 }
 
 Node.prototype.is_open = function() {
-  var c = this.children;
-  return c !== undefined && c != null && c.length > 0;
+  return this.children != null;
 }
 
 Node.prototype.is_closed = function() {
@@ -47,28 +47,23 @@ Node.prototype.is_root = function() {
 }
 
 Node.prototype.get_children = function() {
-  var children = this.is_open() ? this.children : this._children;
-  return (children === undefined || children == null) ? [] : children;
+  return this.is_open() ? this.children : this._children;
 }
 
-Node.prototype.add_child = function(data) {
-  this.open();
-  this.children = this.get_children();
-  this.children.push(new Node(data));
+Node.prototype.add_child = function(parameters) {
+  var node = new Node(parameters)
+  this.get_children().push(node);
+  return node;
 }
 
 Node.prototype.remove = function() {
   if (this.is_root())
     return;
 
-  var context = this;
-  var parent = this.parent;
+  var children = this.parent.get_children();
+  children.splice(children.indexOf(this), 1);
 
-  parent.children = parent.get_children().filter(function(d) {
-    return d != context;
-  });
-
-  return parent;
+  return this.parent;
 }
 
 

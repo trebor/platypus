@@ -84,7 +84,7 @@ StuffTree.prototype.update = function(source) {
     .attr("x", this.box_size / 2)
      .attr("y", this.box_size / 2)
     .text("+")
-    .on("click", function(d) {d.add_child({name: "new"}); context.update(d);});
+    .on("click", function(d) {context.add_node(d);});
 
   nodeEnter.append("text")
     .classed("child_count", true)
@@ -200,6 +200,14 @@ StuffTree.prototype.update = function(source) {
     d.x0 = d.x;
     d.y0 = d.y;
   });
+};
+
+// add node
+
+StuffTree.prototype.add_node = function(node) {
+  node.add_child({name: "new"});
+  node.open();
+  this.update(node);
 };
 
 // toggle children on click
