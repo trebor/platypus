@@ -4,6 +4,8 @@ function Node(parameters) {
     context[key] = element;
   });
 
+  this.id = null;
+  this.removed = false;
   this.children = [];
   this._children = null;
 
@@ -56,13 +58,16 @@ Node.prototype.add_child = function(parameters) {
   return node;
 }
 
+Node.prototype.was_removed = function() {
+  return this.removed || (!this.is_root() && this.parent.was_removed());
+}
+
 Node.prototype.remove = function() {
+  this.removed = true;
   if (this.is_root())
     return;
-
   var children = this.parent.get_children();
   children.splice(children.indexOf(this), 1);
-
   return this.parent;
 }
 

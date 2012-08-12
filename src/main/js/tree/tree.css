@@ -5,6 +5,7 @@ html
   margin: 0px;
   padding: 0px;
   border: 0px;
+  font: 10px sans-serif;
 }
 
 body
@@ -28,13 +29,24 @@ div
 
 #chart
 {
-  width: 90%;
+  width: 100%;
   height: 100%;
 }
 
 svg
 {
 /*   opacity: 0.75; */
+}
+
+.stuff_group
+{
+  fill: lightblue;
+}
+
+.zoom_node
+{
+  opacity: .1;
+  fill: green;
 }
 
 .node
@@ -45,30 +57,41 @@ svg
   fill: #ccc;
 }
 
+.person
+{
+  text-anchor: middle;
+  fill: #ddd;
+}
+
+.person_text
+{
+  fill: #444;
+}
+
 .open.branch
 {
-  fill: grey;
+  fill: #aaa;
 }
 
 .closed.branch
 {
-  fill: grey;
+  fill: #aaa;
 }
 
 .leaf
 {
-  fill: lightgrey;
+  fill: #ddd;
 }
 
 .title
 {
-  font: 10px sans-serif;
   fill: #444;
 }
 
 .child_count
 {
-  font: 12px sans-serif;
+  text-anchor: end;
+  font-size: 12px;
   fill: #222;
 }
 
@@ -81,8 +104,8 @@ svg
 
 .delete_button
 {
-  font: 24px sans-serif;
-  font-weight: bold;
+  font: 12px sans-serif;
+  font-weight: 100;
   fill: #666;
 }
 
