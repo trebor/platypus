@@ -132,7 +132,14 @@ StuffTree.prototype.update = function(source) {
     .on("click", function(d) {return context.click(d);});
 
   nodeEnter.append("text")
-    .classed("add_button", true)
+    .classed("child_count", true)
+    .attr("dx", "-.3em")
+    .attr("dy", "-.5em")
+    .attr("x", this.box_size / 2)
+    .attr("y", this.box_size / 2);
+
+  nodeEnter.append("text")
+    .classed("add_button button", true)
     .attr("dx", ".1em")
     .attr("dy", "-.1em")
     .attr("x", this.box_size / 2)
@@ -140,18 +147,11 @@ StuffTree.prototype.update = function(source) {
     .text("+")
     .on("click", function(d) {context.add_node(d);});
 
-  nodeEnter.append("text")
-    .classed("child_count", true)
-    .attr("dx", "-.3em")
-    .attr("dy", "-.5em")
-    .attr("x", this.box_size / 2)
-    .attr("y", this.box_size / 2);
-
   nodeEnter
     .append("text")
-    .classed("zoom_button", true)
-    .attr("dx", ".3em")
-    .attr("dy", "-0.3em")
+    .classed("zoom_button button", true)
+    .attr("dx", ".1em")
+    .attr("dy", "-0.1em")
     .attr("x", -this.box_size / 2)
     .attr("y", this.box_size / 2)
     .text(String.fromCharCode(0x25F1))
@@ -159,9 +159,9 @@ StuffTree.prototype.update = function(source) {
 
   nodeEnter
     .append("text")
-    .classed("delete_button", true)
-    .attr("dx", "-.9em")
-    .attr("dy", "0.9em")
+    .classed("delete_button button", true)
+    .attr("dx", "-.7em")
+    .attr("dy", "0.7em")
     .attr("x", this.box_size / 2)
     .attr("y", -this.box_size / 2)
     .attr("visibility", function (d) {return d.is_root() ? "hidden" : "visibile";})

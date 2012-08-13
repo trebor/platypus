@@ -45,8 +45,9 @@ svg
 
 .zoom_node
 {
-  opacity: .1;
-  fill: green;
+  fill: #ddd;
+  stroke-width: 5px;
+  stroke: #888;
 }
 
 .node
@@ -95,33 +96,14 @@ svg
   fill: #222;
 }
 
-.add_button
+.button
 {
   font: 24px sans-serif;
   font-weight: bold;
   fill: #666;
 }
 
-.zoom_button
-{
-  font: 12px sans-serif;
-  font-weight: 100;
-  fill: #666;
-}
-
-.delete_button
-{
-  font: 12px sans-serif;
-  font-weight: 100;
-  fill: #666;
-}
-
-.add_button:hover
-{
-  fill: red;
-}
-
-.delete_button:hover
+.button:hover
 {
   fill: red;
 }
