@@ -102,6 +102,13 @@ svg
   fill: #666;
 }
 
+.zoom_button
+{
+  font: 12px sans-serif;
+  font-weight: 100;
+  fill: #666;
+}
+
 .delete_button
 {
   font: 12px sans-serif;

@@ -1,7 +1,7 @@
 function StuffTree(divId) {
   var context = this;
 
-  this.i = 0;
+  this.next_id = 0;
   this.root;
 
   // display constants
@@ -110,7 +110,7 @@ StuffTree.prototype.update = function(source) {
   // select the nodes
 
   var node = this.stuff_group.selectAll("g.node")
-    .data(nodes, function(d) { return d.id || (d.id = ++context.i);});
+    .data(nodes, function(d) { return d.id || (d.id = context.get_next_id());});
 
   // enter any new nodes at the parent's previous position
 
@@ -120,9 +120,7 @@ StuffTree.prototype.update = function(source) {
     .style("opacity", 0)
     .attr("transform", function(d) {
       return "translate(" + source.x0 + "," + source.y0 + ")";
-    })
-    .on("mouseover", function (d) {return context.zoom_node(d);})
-    .on("mouseout", function (d) {return context.unzoom_node(d);});
+    });
 
   // add the node box
 
@@ -148,6 +146,16 @@ StuffTree.prototype.update = function(source) {
     .attr("dy", "-.5em")
     .attr("x", this.box_size / 2)
     .attr("y", this.box_size / 2);
+
+  nodeEnter
+    .append("text")
+    .classed("zoom_button", true)
+    .attr("dx", ".3em")
+    .attr("dy", "-0.3em")
+    .attr("x", -this.box_size / 2)
+    .attr("y", this.box_size / 2)
+    .text(String.fromCharCode(0x25F1))
+    .on("click", function(d) {context.zoom_node(d);});
 
   nodeEnter
     .append("text")
@@ -294,24 +302,34 @@ StuffTree.prototype.click = function(node) {
   this.update(node);
 }
 
+// get next id
+
+StuffTree.prototype.get_next_id = function() {
+  return ++this.next_id;
+}
+
 // zoom into a node
 
 StuffTree.prototype.zoom_node = function(node) {
   var context = this;
 
+  // make node data
+
   var datax = [node];
+
+  // great node group
 
   var zoom_node_update = this.zoom_group.selectAll("g.zoom_node")
     .data(datax, function(d) {
-      return ++context.i;
+      return context.get_next_id();
     });
   
   var zoom_node_enter = zoom_node_update
     .enter()
     .append("svg:g")
-    .each(function(d) {console.log("g: ", d);})
     .classed("zoom_node", true)
-    .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";});
+    .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";})
+    .on("click", function() {context.unzoom_node(node);});
 
   zoom_node_enter
     .append("svg:rect")
@@ -320,8 +338,7 @@ StuffTree.prototype.zoom_node = function(node) {
     .attr("rx", this.box_corner)
     .attr("ry", this.box_corner)
     .attr("width", this.box_size)
-    .attr("height", this.box_size)
-    .each(function(d) {console.log("box: ", d);});
+    .attr("height", this.box_size);
 
   zoom_node_update
     .transition()
@@ -342,10 +359,11 @@ StuffTree.prototype.zoom_node = function(node) {
 StuffTree.prototype.unzoom_node = function(node) {
   var context = this;
 
-  this.zoom_group.selectAll(".zoom_node g")
+  this.zoom_group.selectAll("g.zoom_node")
     .transition()
     .duration(this.zoom_duration)
-    .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";});
+    .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";})
+    .remove();
 
   this.zoom_group.selectAll(".zoom_node rect")
     .transition()
@@ -355,6 +373,5 @@ StuffTree.prototype.unzoom_node = function(node) {
     .attr("rx", this.box_corner)
     .attr("ry", this.box_corner)
     .attr("width", this.box_size)
-    .attr("height", this.box_size)
-    .each(function(d) {console.log("box: ", d);});
+    .attr("height", this.box_size);
 }
